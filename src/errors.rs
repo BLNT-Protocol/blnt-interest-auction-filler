@@ -8,7 +8,6 @@ pub enum FillerError {
     InvalidAmount = 2,
     InvalidAuction = 3,
     UnsupportedBidToken = 4,
-    PoolNotRegistered = 5,
     BalanceError = 6,
     OverflowError = 7,
     Unauthorized = 8,

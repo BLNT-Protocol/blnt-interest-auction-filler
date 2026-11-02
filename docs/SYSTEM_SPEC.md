@@ -11,12 +11,12 @@ The helper does not create auctions, select interest tiers, alter auction pricin
 Each helper instance binds at construction:
 
 - one lot-recovery owner;
-- the BLNT V3 pool factory and backstop;
+- the BLNT V3 backstop;
 - canonical BLNT, USDC, and XLM;
 - canonical BLNT:USDC Comet V1.1; and
 - canonical BLNT:XLM Comet V1.1.
 
-All seven protocol addresses must be distinct. Only pools registered by the bound factory are accepted. The helper invokes the deployed pool's public type-2/type-3 auction getter and request-type-8/request-type-10 fill interfaces. It does not accept caller-selected routing contracts.
+All six protocol addresses must be distinct. The owner-authorized caller supplies the BLNT V3 pool, matching the V2 filler trust model. The helper invokes that pool's public type-2/type-3 auction getter and request-type-8/request-type-10 fill interfaces. The bot must validate configured pools before use, and the helper does not accept caller-selected routing contracts.
 
 ## 3. USDC-funded bid routes
 
@@ -47,7 +47,6 @@ Any other bid token is rejected. Every exact-output Comet operation remains subj
 The caller supplies the expected auction start ledger. Interest calls also supply the expected bid token. The helper reads the active auction using the bound backstop address and requires:
 
 - `fill_percent` is from 1 through 100;
-- the pool remains registered;
 - auction type is interest (2) or protocol fee (3), matching the selected entrypoint;
 - the active auction start ledger equals the expected ledger;
 - the bid map contains exactly one positive entry;
@@ -61,7 +60,7 @@ The helper computes the execution-ledger bid using the same seven-decimal, ceili
 For a positive bid, one invocation performs:
 
 1. configured-owner authorization;
-2. registered-pool and auction-identity validation;
+2. auction-identity validation against the owner-supplied pool;
 3. exact execution-ledger bid calculation;
 4. bounded USDC transfer;
 5. the route-specific exact-output swap or LP acquisition;
@@ -76,7 +75,7 @@ If any step fails, Soroban transaction atomicity reverts every earlier state and
 
 V3 intentionally keeps an active auction's selected tier private, and multiple tiers may use the same plain USDC or XLM token. Bid-token identity therefore cannot reliably reveal the tier.
 
-The helper authorizes `backstop.donate` for FirstLoss, SecondLoss, and ThirdLoss, each with the same exact helper address, registered pool, and execution-ledger amount. It grants the backstop an allowance for exactly one donation. The immutable registered pool invokes only its privately selected tier; after one donation the allowance is exhausted, so no second authorization can move funds. A mismatched amount or pool fails atomically.
+The helper authorizes `backstop.donate` for FirstLoss, SecondLoss, and ThirdLoss, each with the same exact helper address, owner-supplied pool, and execution-ledger amount. It grants the backstop an allowance for exactly one donation. The supplied pool invokes only its privately selected tier; after one donation the allowance is exhausted, so no second authorization can move funds. A mismatched amount or pool fails atomically.
 
 ## 7. Authorization and custody
 
@@ -91,19 +90,19 @@ Successful lots are held by the helper. Only the current owner may invoke `claim
 - Expected auction identity prevents silently filling a replacement auction.
 - Exact-output acquisition prevents deliberate bid-token over-minting.
 - Exact allowances prevent more than one tier donation.
-- Factory registration rejects arbitrary pool contracts.
+- Owner authorization makes the caller responsible for supplying a valid BLNT V3 pool.
 - Immutable canonical Comet bindings reject arbitrary routing contracts.
 - Delta refunds exclude pre-existing helper balances and retain the exact bid.
 - Release builds retain checked overflow behavior.
 
 ## 9. Auctioneer integration
 
-The auctioneer bot configuration contains the helper address. Startup validation must confirm the helper owner and all immutable bindings. For interest auctions the bot simulates route costs, supplies the observed auction block/token, and supplies conservative maximum USDC and intermediate BLNT amounts. For protocol-fee auctions it values the reserve lot, supplies a conservative maximum USDC amount, and invokes `fill_protocol_fee`.
+The auctioneer bot configuration contains the helper address and all immutable asset, backstop, and Comet bindings from the pinned deployment record. Startup validation must confirm the current helper owner, each configured pool's backstop, and both configured Comet token pairs. For interest auctions the bot simulates route costs, supplies the observed auction block/token, and supplies conservative maximum USDC and intermediate BLNT amounts. For protocol-fee auctions it values the reserve lot, supplies a conservative maximum USDC amount, and invokes `fill_protocol_fee`.
 
 After confirmation, the bot records the fill and submits an owner-authorized claim for the lot assets. The bot must not run a separate token-acquisition transaction before using this helper.
 
 ## 10. Required verification
 
-Unit and integration tests must cover all four interest-tier assets, protocol-fee BLNT acquisition, unused-input refunds, insufficient caps, replacement auctions, noncanonical tokens, unregistered pools, another filler winning first, Comet failure, pool failure after acquisition, zero-bid fills, duplicate tier tokens, claim authorization, ownership transfer, and a four-asset protocol-fee lot.
+Unit and integration tests must cover all four interest-tier assets, protocol-fee BLNT acquisition, unused-input refunds, insufficient caps, replacement auctions, noncanonical tokens, another filler winning first, Comet failure, pool failure after acquisition, zero-bid fills, duplicate tier tokens, claim authorization, ownership transfer, and a four-asset protocol-fee lot.
 
-Before production deployment, an integration test must exercise optimized helper WASM against the exact deployed-compatible BLNT V3 pool, backstop, pool-factory, token, and official Comet V1.1 artifacts. Deployment records must pin the helper WASM hash, constructor bindings, source commit, and transaction hashes.
+Before production deployment, an integration test must exercise optimized helper WASM against the exact deployed-compatible BLNT V3 pool, backstop, token, and official Comet V1.1 artifacts. Deployment records must pin the helper WASM hash, constructor bindings, source commit, and transaction hashes.

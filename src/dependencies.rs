@@ -9,12 +9,6 @@ pub trait Pool {
 }
 
 #[allow(dead_code)]
-#[contractclient(name = "PoolFactoryClient")]
-pub trait PoolFactory {
-    fn is_pool(e: Env, pool: Address) -> bool;
-}
-
-#[allow(dead_code)]
 #[contractclient(name = "CometClient")]
 pub trait Comet {
     fn dep_lp_tokn_amt_out_get_tokn_in(

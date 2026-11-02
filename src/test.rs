@@ -306,20 +306,6 @@ impl MockPool {
     }
 }
 
-#[contract]
-struct MockFactory;
-
-#[contractimpl]
-impl MockFactory {
-    pub fn __constructor(e: Env, pool: Address) {
-        e.storage().instance().set(&0_u32, &pool);
-    }
-
-    pub fn is_pool(e: Env, pool: Address) -> bool {
-        e.storage().instance().get::<u32, Address>(&0_u32) == Some(pool)
-    }
-}
-
 #[derive(Clone, Copy)]
 enum Route {
     Usdc,
@@ -389,12 +375,9 @@ fn fixture(route: Route, fail: bool) -> Fixture {
             tier,
         },),
     );
-    let factory = e.register(MockFactory, (&pool,));
     let filler = e.register(
         BlntInterestAuctionFiller,
-        (
-            &owner, &factory, &backstop, &blnt, &usdc, &xlm, &blnt_usdc, &blnt_xlm,
-        ),
+        (&owner, &backstop, &blnt, &usdc, &xlm, &blnt_usdc, &blnt_xlm),
     );
 
     StellarAssetClient::new(&e, &usdc).mint(&owner, &10_000);
@@ -494,22 +477,11 @@ fn rejects_non_owner_funding_address() {
 }
 
 #[test]
-fn rejects_noncanonical_interest_token_and_unregistered_pool() {
+fn rejects_noncanonical_interest_token() {
     let f = fixture(Route::UnsupportedBlntInterest, false);
     let client = BlntInterestAuctionFillerClient::new(&f.e, &f.filler);
     assert!(client
         .try_fill_interest(&f.owner, &f.pool, &100, &250, &0, &100, &f.bid)
-        .is_err());
-    assert!(client
-        .try_fill_interest(
-            &f.owner,
-            &Address::generate(&f.e),
-            &100,
-            &250,
-            &0,
-            &100,
-            &f.bid,
-        )
         .is_err());
     assert_eq!(TokenClient::new(&f.e, &f.usdc).balance(&f.owner), 10_000);
 }

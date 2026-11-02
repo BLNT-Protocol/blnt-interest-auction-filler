@@ -6,7 +6,7 @@ use soroban_sdk::{
 };
 
 use crate::{
-    dependencies::{CometClient, PoolClient, PoolFactoryClient},
+    dependencies::{CometClient, PoolClient},
     math::scaled_bid_amount,
     storage, AuctionData, BackstopTier, Config, FillerError, Request,
 };
@@ -25,7 +25,6 @@ impl BlntInterestAuctionFiller {
     pub fn __constructor(
         e: Env,
         owner: Address,
-        pool_factory: Address,
         backstop: Address,
         blnt: Address,
         usdc: Address,
@@ -35,7 +34,6 @@ impl BlntInterestAuctionFiller {
     ) {
         let addresses = vec![
             &e,
-            pool_factory.clone(),
             backstop.clone(),
             blnt.clone(),
             usdc.clone(),
@@ -58,16 +56,10 @@ impl BlntInterestAuctionFiller {
                 blnt,
                 blnt_usdc,
                 blnt_xlm,
-                pool_factory,
                 usdc,
                 xlm,
             },
         );
-    }
-
-    pub fn get_config(e: Env) -> Config {
-        storage::extend_instance(&e);
-        storage::config(&e)
     }
 
     pub fn get_owner(e: Env) -> Address {
@@ -102,13 +94,11 @@ impl BlntInterestAuctionFiller {
             &e,
             &from,
             &pool,
-            INTEREST_AUCTION_TYPE,
-            FILL_INTEREST_REQUEST_TYPE,
+            Some(&expected_bid_token),
             fill_percent,
             max_usdc_in,
             max_blnt_in,
             expected_auction_block,
-            &expected_bid_token,
         );
     }
 
@@ -123,18 +113,15 @@ impl BlntInterestAuctionFiller {
         max_usdc_in: i128,
         expected_auction_block: u32,
     ) {
-        let config = storage::config(&e);
         execute_fill(
             &e,
             &from,
             &pool,
-            PROTOCOL_FEE_AUCTION_TYPE,
-            FILL_PROTOCOL_FEE_REQUEST_TYPE,
+            None,
             fill_percent,
             max_usdc_in,
             0,
             expected_auction_block,
-            &config.blnt,
         );
     }
 
@@ -160,25 +147,15 @@ fn execute_fill(
     e: &Env,
     from: &Address,
     pool: &Address,
-    auction_type: u32,
-    request_type: u32,
+    expected_interest_token: Option<&Address>,
     fill_percent: u32,
     max_usdc_in: i128,
     max_blnt_in: i128,
     expected_block: u32,
-    expected_token: &Address,
 ) {
     storage::extend_instance(e);
     from.require_auth();
-    if fill_percent == 0
-        || fill_percent > 100
-        || max_usdc_in < 0
-        || max_blnt_in < 0
-        || !matches!(
-            auction_type,
-            INTEREST_AUCTION_TYPE | PROTOCOL_FEE_AUCTION_TYPE
-        )
-    {
+    if fill_percent == 0 || fill_percent > 100 || max_usdc_in < 0 || max_blnt_in < 0 {
         panic_with_error!(e, FillerError::InvalidAmount);
     }
 
@@ -186,14 +163,26 @@ fn execute_fill(
     if *from != storage::owner(e) {
         panic_with_error!(e, FillerError::Unauthorized);
     }
-    if !PoolFactoryClient::new(e, &config.pool_factory).is_pool(pool) {
-        panic_with_error!(e, FillerError::PoolNotRegistered);
-    }
-
+    let (auction_type, request_type, expected_token, is_interest) =
+        if let Some(token) = expected_interest_token {
+            (
+                INTEREST_AUCTION_TYPE,
+                FILL_INTEREST_REQUEST_TYPE,
+                token,
+                true,
+            )
+        } else {
+            (
+                PROTOCOL_FEE_AUCTION_TYPE,
+                FILL_PROTOCOL_FEE_REQUEST_TYPE,
+                &config.blnt,
+                false,
+            )
+        };
     let auction = PoolClient::new(e, pool).get_auction(&auction_type, &config.backstop);
     let (bid_token, bid_amount) =
         validate_and_scale_auction(e, &auction, fill_percent, expected_block, expected_token);
-    if auction_type == INTEREST_AUCTION_TYPE
+    if is_interest
         && bid_token != config.usdc
         && bid_token != config.xlm
         && bid_token != config.blnt_usdc
@@ -201,7 +190,7 @@ fn execute_fill(
     {
         panic_with_error!(e, FillerError::UnsupportedBidToken);
     }
-    if auction_type == PROTOCOL_FEE_AUCTION_TYPE && bid_token != config.blnt {
+    if !is_interest && bid_token != config.blnt {
         panic_with_error!(e, FillerError::UnsupportedBidToken);
     }
 
@@ -215,7 +204,7 @@ fn execute_fill(
             max_usdc_in,
             max_blnt_in,
         );
-        if auction_type == INTEREST_AUCTION_TYPE {
+        if is_interest {
             TokenClient::new(e, &bid_token).approve(
                 &e.current_contract_address(),
                 &config.backstop,

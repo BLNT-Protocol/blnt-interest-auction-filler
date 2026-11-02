@@ -4,6 +4,8 @@ An optional Soroban helper that atomically acquires BLNT V3 auction bid tokens f
 
 The helper supports all four canonical interest-tier assets—USDC, XLM, BLNT:USDC LP, and BLNT:XLM LP—and BLNT bids for protocol-fee auctions. It uses the canonical BLNT:USDC and BLNT:XLM Comet V1.1 pools for exact-output acquisition, so the configured owner can operate from USDC without keeping tier-token or BLNT inventory.
 
+As with the V2 filler, the owner-authorized caller is responsible for supplying a valid pool address. The auctioneer bot obtains the helper's immutable bindings from the pinned deployment record and validates configured pools, their backstop binding, the current helper owner, and both canonical Comet token pairs before use.
+
 See [the system specification](docs/SYSTEM_SPEC.md) for the normative behavior and safety boundaries.
 
 ## Build and test

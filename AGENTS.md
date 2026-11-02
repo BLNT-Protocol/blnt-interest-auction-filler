@@ -15,13 +15,13 @@ Read these before changing behavior:
 3. The official Comet V1.1 ABI and release artifact
 4. Existing tests and the implementation being changed
 
-The deployed BLNT V3 pool, backstop, pool-factory, and canonical Comet contracts are external compatibility boundaries. Do not assume their code can be changed.
+The deployed BLNT V3 pool, backstop, and canonical Comet contracts are external compatibility boundaries. Do not assume their code can be changed.
 
 ## Critical invariants
 
 - Preserve atomic rollback across input transfer, exact-output swaps or LP acquisition, approval or direct BLNT payment, and auction fill.
 - Never disable overflow checks or use floating-point arithmetic.
-- Validate the registered pool, live auction identity, bid token, fill percentage, and maximum input before moving value.
+- Validate the live auction identity, bid token, fill percentage, and maximum input before moving value.
 - Acquire exactly the execution-ledger bid amount. Do not add a bid-token buffer.
 - Authorize the exact V3 donation amount for every possible private tier; the exact allowance must permit only one donation.
 - Return unused caller input before invoking the fill.
@@ -40,7 +40,7 @@ The production contract supports every canonical BLNT V3 interest-tier token and
 - BLNT:XLM LP through exact-output USDC-to-BLNT acquisition and a single-sided BLNT deposit; and
 - protocol-fee BLNT through an exact-output USDC-to-BLNT swap.
 
-Reject noncanonical tokens and pools. Do not add arbitrary caller-selected routing contracts.
+Reject noncanonical bid tokens. The owner-authorized caller is responsible for supplying a valid BLNT V3 pool, matching the V2 filler trust model. Do not add arbitrary caller-selected routing contracts.
 
 ## Development workflow
 

@@ -31,7 +31,6 @@ pub struct Config {
     pub blnt: Address,
     pub blnt_usdc: Address,
     pub blnt_xlm: Address,
-    pub pool_factory: Address,
     pub usdc: Address,
     pub xlm: Address,
 }
