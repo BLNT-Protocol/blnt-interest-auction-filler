@@ -7,7 +7,7 @@
     "rpc_url": null
   },
   "release": {
-    "version": "0.1.0",
+    "version": "1.0.0",
     "source_repository": "https://github.com/BLNT-Protocol/blnt-interest-auction-filler",
     "source_commit": null,
     "wasm_sha256": null,

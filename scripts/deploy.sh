@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 NETWORK_CONFIG="${BLNT_FILLER_NETWORK_CONFIG:-${ROOT_DIR}/config/mainnet.json}"
-RELEASE_MANIFEST="${BLNT_FILLER_RELEASE_MANIFEST:-${ROOT_DIR}/releases/v0.1.0.json}"
+RELEASE_MANIFEST="${BLNT_FILLER_RELEASE_MANIFEST:-${ROOT_DIR}/releases/v1.0.0.json}"
 WASM="${ROOT_DIR}/target/wasm32v1-none/optimized/blnt_interest_auction_filler.wasm"
 COMMAND="${1:-plan}"
 
@@ -24,7 +24,7 @@ sha256_file() {
     fi
 }
 
-for tool in jq make stellar awk; do
+for tool in cargo jq make stellar awk; do
     require_command "${tool}"
 done
 
@@ -60,7 +60,7 @@ if [[ -n "${INCLUSION_FEE}" ]]; then
 fi
 
 verify_release() {
-    local actual_hash actual_size expected_metadata actual_version
+    local actual_hash actual_size cargo_version expected_metadata actual_version
     make -C "${ROOT_DIR}" build
     actual_hash="$(sha256_file "${WASM}")"
     actual_size="$(wc -c < "${WASM}" | tr -d '[:space:]')"
@@ -68,6 +68,12 @@ verify_release() {
         die "WASM hash ${actual_hash} does not match release ${EXPECTED_HASH}"
     [[ "${actual_size}" == "${EXPECTED_SIZE}" ]] ||
         die "WASM size ${actual_size} does not match release ${EXPECTED_SIZE}"
+    cargo_version="$(
+        cargo metadata --manifest-path "${ROOT_DIR}/Cargo.toml" --format-version 1 --no-deps |
+            jq -er '.packages[] | select(.name == "blnt-interest-auction-filler") | .version'
+    )"
+    [[ "${cargo_version}" == "${RELEASE_VERSION}" ]] ||
+        die "Cargo package version ${cargo_version} does not match release ${RELEASE_VERSION}"
     expected_metadata="$(jq -er '.artifact.source_repo_metadata' "${RELEASE_MANIFEST}")"
     stellar contract info meta --wasm "${WASM}" 2>/dev/null |
         grep -Fq "source_repo: ${expected_metadata}" ||

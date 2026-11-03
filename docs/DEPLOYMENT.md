@@ -4,7 +4,7 @@
 
 The filler is a single-owner execution and custody helper, not a protocol-wide singleton. Each independent auctioneer normally deploys its own instance with its filler account as `owner`. Multiple bot processes may share one instance only when they intentionally share the same filler account.
 
-The optimized WASM is content-addressed and only needs to be uploaded to a network once. Every operator can deploy a separate instance from the published WASM hash. The repository publishes the shared release in `releases/v0.1.0.json` and canonical mainnet bindings in `config/mainnet.json`; it does not publish a canonical contract ID.
+The optimized WASM is content-addressed and only needs to be uploaded to a network once. Every operator can deploy a separate instance from the published WASM hash. The repository publishes the shared release in `releases/v1.0.0.json` and canonical mainnet bindings in `config/mainnet.json`; it does not publish a canonical contract ID.
 
 ## Prerequisites
 
