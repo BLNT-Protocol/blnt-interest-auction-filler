@@ -60,7 +60,7 @@ if [[ -n "${INCLUSION_FEE}" ]]; then
 fi
 
 verify_release() {
-    local actual_hash actual_size cargo_version expected_metadata actual_version
+    local actual_hash actual_metadata actual_size cargo_version expected_metadata actual_version
     make -C "${ROOT_DIR}" build
     actual_hash="$(sha256_file "${WASM}")"
     actual_size="$(wc -c < "${WASM}" | tr -d '[:space:]')"
@@ -75,8 +75,8 @@ verify_release() {
     [[ "${cargo_version}" == "${RELEASE_VERSION}" ]] ||
         die "Cargo package version ${cargo_version} does not match release ${RELEASE_VERSION}"
     expected_metadata="$(jq -er '.artifact.source_repo_metadata' "${RELEASE_MANIFEST}")"
-    stellar contract info meta --wasm "${WASM}" 2>/dev/null |
-        grep -Fq "source_repo: ${expected_metadata}" ||
+    actual_metadata="$(stellar contract info meta --wasm "${WASM}" 2>/dev/null)"
+    [[ "${actual_metadata}" == *"source_repo: ${expected_metadata}"* ]] ||
         die "WASM source_repo metadata does not match the release manifest"
     actual_version="$(stellar --version | awk 'NR == 1 {print $2}')"
     [[ "${actual_version}" == "$(jq -er '.toolchain.stellar_cli' "${RELEASE_MANIFEST}")" ]] ||
