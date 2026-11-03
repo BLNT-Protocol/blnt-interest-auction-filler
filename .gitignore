@@ -2,3 +2,5 @@
 /test_snapshots/
 *.wasm
 .DS_Store
+/deployments/*.json
+!/deployments/example.json

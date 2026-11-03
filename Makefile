@@ -2,7 +2,7 @@ MAX_WASM_BYTES := 65536
 WASM := target/wasm32v1-none/optimized/blnt_interest_auction_filler.wasm
 SOURCE_REPO_META := source_repo=github:BLNT-Protocol/blnt-interest-auction-filler
 
-.PHONY: all build test check fmt verify-source-metadata wasm-size clean
+.PHONY: all build test check fmt verify-source-metadata wasm-size release-verify mainnet-plan mainnet-deploy mainnet-verify clean
 
 all: check test build
 
@@ -33,6 +33,20 @@ verify-source-metadata:
 wasm-size: build
 	wc -c "$(WASM)"
 	shasum -a 256 "$(WASM)"
+
+release-verify:
+	bash scripts/deploy.sh release-verify
+
+mainnet-plan:
+	bash scripts/deploy.sh plan
+
+mainnet-deploy:
+	bash scripts/deploy.sh deploy
+
+mainnet-verify:
+	@test -n "$(BLNT_FILLER_CONTRACT)" || \
+		{ printf 'error: BLNT_FILLER_CONTRACT is required\n' >&2; exit 1; }
+	bash scripts/deploy.sh verify "$(BLNT_FILLER_CONTRACT)"
 
 clean:
 	cargo clean

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "network": {
+    "name": "Public Global Stellar Network",
+    "passphrase": "Public Global Stellar Network ; September 2015",
+    "default_rpc_url": "https://soroban-rpc.creit.tech"
+  },
+  "constructor_bindings": {
+    "backstop": "CAHCUKBPTW5DR5RNXOHCTJD5U76A6EEZXYZAQFRQEEQRXQ3CRUZ6Z3MO",
+    "blnt": "CCBNWP5L7ZSXA3DBWCMFAVKFVRW3ZHWO7B5J557W42O64DDZNPJP7VDS",
+    "usdc": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "xlm": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "blnt_usdc": "CDQMIKIHKA5UY3FQJ2UDTLNX3GOPD3GPNZWSPTOBVOHEUMQJQXOPC7Y3",
+    "blnt_xlm": "CA5HX3D47PQZWC2E7VWXCKH4534P2NOJEOIXAWU47MI4QV2FQUYY3FLC"
+  },
+  "provenance": {
+    "repository": "https://github.com/BLNT-Protocol/blnt-v3-migration",
+    "source_commit": "af2d30f7fd21b518f197498a35193385e1f6baa9",
+    "deployment_record": "deployments/mainnet-v3-redeployment-core.json"
+  }
+}

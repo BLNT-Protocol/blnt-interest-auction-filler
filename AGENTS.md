@@ -54,4 +54,4 @@ make test
 make build
 ```
 
-Use `apply_patch` for authored changes. Do not commit build output, secrets, account keys, deployment configuration, or generated local state.
+Use `apply_patch` for authored changes. Do not commit build output, secrets, account keys, operator-specific deployment configuration, or generated local state. Shared release manifests and canonical public network bindings are allowed.

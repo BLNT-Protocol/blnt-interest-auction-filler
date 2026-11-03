@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_at": null,
+  "network": {
+    "name": "Public Global Stellar Network",
+    "passphrase": "Public Global Stellar Network ; September 2015",
+    "rpc_url": null
+  },
+  "release": {
+    "version": "0.1.0",
+    "source_repository": "https://github.com/BLNT-Protocol/blnt-interest-auction-filler",
+    "source_commit": null,
+    "wasm_sha256": null,
+    "wasm_bytes": null
+  },
+  "contract": {
+    "id": null,
+    "owner": null,
+    "deployer": null,
+    "salt": null,
+    "constructor_bindings": null
+  },
+  "transactions": {
+    "upload_wasm": null,
+    "deploy_contract": null
+  },
+  "verification": {
+    "verified_at": null,
+    "wasm_sha256": null,
+    "owner": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0",
+  "source_repository": "https://github.com/BLNT-Protocol/blnt-interest-auction-filler",
+  "source_commit": "5e01a36609ac4e6e7d192ccb3241e7e148472fa2",
+  "artifact": {
+    "path": "target/wasm32v1-none/optimized/blnt_interest_auction_filler.wasm",
+    "sha256": "617f3b499b9304a0c4bdea0af44d78f83ce2254c051390e18f0c79ce25751452",
+    "bytes": 10132,
+    "source_repo_metadata": "github:BLNT-Protocol/blnt-interest-auction-filler"
+  },
+  "toolchain": {
+    "rust": "1.91.1",
+    "stellar_cli": "27.0.0",
+    "soroban_sdk": "27.0.3",
+    "target": "wasm32v1-none"
+  },
+  "verification": {
+    "ci_run": "https://github.com/BLNT-Protocol/blnt-interest-auction-filler/actions/runs/41545695093"
+  }
+}

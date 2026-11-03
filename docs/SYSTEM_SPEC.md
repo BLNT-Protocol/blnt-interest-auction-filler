@@ -97,7 +97,7 @@ Successful lots are held by the helper. Only the current owner may invoke `claim
 
 ## 9. Auctioneer integration
 
-The auctioneer bot configuration contains the helper address and all immutable asset, backstop, and Comet bindings from the pinned deployment record. Startup validation must confirm the current helper owner, each configured pool's backstop, and both configured Comet token pairs. For interest auctions the bot simulates route costs, supplies the observed auction block/token, and supplies conservative maximum USDC and intermediate BLNT amounts. For protocol-fee auctions it values the reserve lot, supplies a conservative maximum USDC amount, and invokes `fill_protocol_fee`.
+The auctioneer bot configuration contains its owner-specific helper address and all immutable asset, backstop, and Comet bindings from the operator's pinned deployment record. Startup validation must confirm the current helper owner, each configured pool's backstop, and both configured Comet token pairs. For interest auctions the bot simulates route costs, supplies the observed auction block/token, and supplies conservative maximum USDC and intermediate BLNT amounts. For protocol-fee auctions it values the reserve lot, supplies a conservative maximum USDC amount, and invokes `fill_protocol_fee`.
 
 After confirmation, the bot records the fill and submits an owner-authorized claim for the lot assets. The bot must not run a separate token-acquisition transaction before using this helper.
 
@@ -105,4 +105,4 @@ After confirmation, the bot records the fill and submits an owner-authorized cla
 
 Unit and integration tests must cover all four interest-tier assets, protocol-fee BLNT acquisition, unused-input refunds, insufficient caps, replacement auctions, noncanonical tokens, another filler winning first, Comet failure, pool failure after acquisition, zero-bid fills, duplicate tier tokens, claim authorization, ownership transfer, and a four-asset protocol-fee lot.
 
-Before production deployment, an integration test must exercise optimized helper WASM against the exact deployed-compatible BLNT V3 pool, backstop, token, and official Comet V1.1 artifacts. Deployment records must pin the helper WASM hash, constructor bindings, source commit, and transaction hashes.
+Before production deployment, an integration test must exercise optimized helper WASM against the exact deployed-compatible BLNT V3 pool, backstop, token, and official Comet V1.1 artifacts. The shared release manifest must pin the helper WASM hash and source commit. Each operator's private deployment record must pin its owner, constructor bindings, instance ID, salt, and available transaction hashes.

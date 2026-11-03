@@ -4,7 +4,7 @@ An optional Soroban helper that atomically acquires BLNT V3 auction bid tokens f
 
 The helper supports all four canonical interest-tier assets—USDC, XLM, BLNT:USDC LP, and BLNT:XLM LP—and BLNT bids for protocol-fee auctions. It uses the canonical BLNT:USDC and BLNT:XLM Comet V1.1 pools for exact-output acquisition, so the configured owner can operate from USDC without keeping tier-token or BLNT inventory.
 
-As with the V2 filler, the owner-authorized caller is responsible for supplying a valid pool address. The auctioneer bot obtains the helper's immutable bindings from the pinned deployment record and validates configured pools, their backstop binding, the current helper owner, and both canonical Comet token pairs before use.
+As with the V2 filler, the owner-authorized caller is responsible for supplying a valid pool address. The auctioneer bot obtains the helper's immutable bindings from the operator's pinned deployment record and validates configured pools, their backstop binding, the current helper owner, and both canonical Comet token pairs before use.
 
 See [the system specification](docs/SYSTEM_SPEC.md) for the normative behavior and safety boundaries.
 
@@ -17,6 +17,18 @@ make build
 ```
 
 The optimized WASM is written to `target/wasm32v1-none/optimized/blnt_interest_auction_filler.wasm` with source-repository metadata.
+
+## Deployment
+
+The repository publishes one reproducible WASM release, not a canonical contract instance. Each independent bot operator deploys an instance owned by its filler account. The deploy script reuses the network-wide WASM hash, verifies the owner and artifact, and writes an ignored operator-local record.
+
+```bash
+make release-verify
+make mainnet-plan
+BLNT_FILLER_SOURCE_ACCOUNT=my-deployer BLNT_FILLER_OWNER=G... make mainnet-deploy
+```
+
+See [the deployment guide](docs/DEPLOYMENT.md) for the canonical mainnet bindings, verification procedure, and operator-record policy.
 
 ## Provenance
 
