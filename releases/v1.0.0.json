@@ -17,5 +17,17 @@
   },
   "verification": {
     "artifact_ci_run": "https://github.com/BLNT-Protocol/blnt-interest-auction-filler/actions/runs/41551760420"
+  },
+  "installations": {
+    "mainnet": {
+      "network_passphrase": "Public Global Stellar Network ; September 2015",
+      "wasm_hash": "617f3b499b9304a0c4bdea0af44d78f83ce2254c051390e18f0c79ce25751452",
+      "upload_transaction": "1ade6905cb39789685b7de1108d3f104b7ec992208b120c88d72aab09cc190c1",
+      "upload_ledger": 65276047,
+      "uploaded_at": "2026-11-03T00:37:54Z",
+      "fee_charged_stroops": 149428716,
+      "live_until_ledger": 67349646,
+      "explorer": "https://stellar.expert/explorer/public/tx/1ade6905cb39789685b7de1108d3f104b7ec992208b120c88d72aab09cc190c1"
+    }
   }
 }
